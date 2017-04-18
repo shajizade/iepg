@@ -1,0 +1,6 @@
+spring:
+  datasource:
+    url: jdbc:mysql://samat-server/[projectName]?zeroDateTimeBehavior=convertToNull&characterEncoding=utf8
+    jdbc:mysql://samat-server/[projectName]?characterEncoding=utf8
+flyway:
+  enabled: true
