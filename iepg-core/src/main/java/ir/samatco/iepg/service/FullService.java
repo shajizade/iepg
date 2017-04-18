@@ -32,6 +32,7 @@ public class FullService {
         for (Nominee nominee : allNominees) {
             nomineesText.append(nominee.getName());
             nomineesText.append("-");
+            nomineesText.append("ارزش :");
             nomineesText.append(nominee.getPrice());
             nomineesText.append("\n");
         }
