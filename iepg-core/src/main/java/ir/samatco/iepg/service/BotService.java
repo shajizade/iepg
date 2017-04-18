@@ -7,7 +7,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,6 +23,8 @@ public class BotService {
     public static final String ASSETS_COMMAND = "موجودی من";
     public static final String MAIN_MENU_COMMAND = "بازگشت به منوی اصلی";
     public static final String START_COMMAND = "/start";
+    private static final String GAME_RULES = "قوانین بازی:";
+    public static final String VOTE_LABLE = " سهام ";
     public static Long lastUpdateId =0L;
     @Autowired
     private FullService fullService;
@@ -61,15 +62,36 @@ public class BotService {
         SendMessageRequest request = new SendMessageRequest();
         request.setChat_id(message.getFrom().getId());
 
-        String text = message.getText();
+        String text = message.getText().trim();
         if (text.startsWith(LIST_COMMAND)) {
             List<Nominee> allNominees = fullService.getAllNominees();
             request.setText(fullService.nomineeListString(allNominees));
             request.setReply_markup(getBaseMenuKeyboard());
         }
+        else if (text.startsWith(RULES_COMMAND)) {
+            request.setText(GAME_RULES);
+            request.setReply_markup(getBaseMenuKeyboard());
+        }
         else if (text.startsWith(BUY_COMMAND)) {
-            List<Nominee> allNominees = fullService.getAllNominees();
-            request.setReply_markup(getNomineeListKeyboard(allNominees));
+            if (text.length()==BUY_COMMAND.length())
+            {
+                List<Nominee> allNominees = fullService.getAllNominees();
+                request.setReply_markup(getBuyNomineeListKeyboard(allNominees));
+            }else{
+                String nomineeName=text.substring(BUY_COMMAND.length()+VOTE_LABLE.length());
+                request.setText(fullService.buyVote(message.getFrom(),nomineeName));
+                request.setReply_markup(getBaseMenuKeyboard());
+            }
+        }else if (text.startsWith(SELL_COMMAND)) {
+            if (text.length()==SELL_COMMAND.length())
+            {
+                List<Nominee> allNominees = fullService.getUserVotes(message.getFrom());
+                request.setReply_markup(getBuyNomineeListKeyboard(allNominees));
+            }else{
+                String nomineeName=text.substring(SELL_COMMAND.length()+VOTE_LABLE.length());
+                request.setText(fullService.sellVote(message.getFrom(),nomineeName));
+                request.setReply_markup(getBaseMenuKeyboard());
+            }
         }else if(text.startsWith(START_COMMAND)) {
             fullService.startVoter(message.getFrom());
             request.setReply_markup(getBaseMenuKeyboard());
@@ -90,11 +112,21 @@ public class BotService {
         }
     }
 
-    private ReplyKeyboard getNomineeListKeyboard(List<Nominee> allNominees) {
+    private ReplyKeyboard getBuyNomineeListKeyboard(List<Nominee> allNominees) {
         ReplyKeyboard replyKeyboard= new ReplyKeyboard(allNominees.size()+1);
         int index=0;
         for (Nominee nominee : allNominees) {
-            replyKeyboard.getKeyboard().get(index).add(new Keyboard(BUY_COMMAND+" سهام "+nominee.getName()));
+            replyKeyboard.getKeyboard().get(index).add(new Keyboard(BUY_COMMAND+ VOTE_LABLE +nominee.getName()));
+            index++;
+        }
+        replyKeyboard.getKeyboard().get(index).add(new Keyboard(MAIN_MENU_COMMAND));
+        return replyKeyboard;
+    }
+    private ReplyKeyboard getSellNomineeListKeyboard(List<Nominee> allNominees) {
+        ReplyKeyboard replyKeyboard= new ReplyKeyboard(allNominees.size()+1);
+        int index=0;
+        for (Nominee nominee : allNominees) {
+            replyKeyboard.getKeyboard().get(index).add(new Keyboard(SELL_COMMAND+ VOTE_LABLE +nominee.getName()));
             index++;
         }
         replyKeyboard.getKeyboard().get(index).add(new Keyboard(MAIN_MENU_COMMAND));

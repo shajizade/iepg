@@ -1,7 +1,5 @@
 package ir.samatco.iepg.service;
 
-import ir.samatco.iepg.api.Keyboard;
-import ir.samatco.iepg.api.ReplyKeyboard;
 import ir.samatco.iepg.entity.Nominee;
 import ir.samatco.iepg.entity.Voter;
 import ir.samatco.iepg.repo.NomineeRepository;
@@ -9,7 +7,6 @@ import ir.samatco.iepg.repo.VoterRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,6 +15,7 @@ import java.util.List;
  */
 @Service
 public class FullService {
+    public static final int STARTING_POINTS = 10000;
     @Autowired
     private NomineeRepository nomineeRepository;
     @Autowired
@@ -45,8 +43,20 @@ public class FullService {
     public void startVoter(Voter voter) {
         Voter dbVoter = voterRepository.findOne(voter.getId());
         if (dbVoter==null){
-            voter.setPoints(10000);
+            voter.setPoints(STARTING_POINTS);
             voterRepository.save(voter);
         }
+    }
+
+    public String buyVote(Voter from, String nomineeName) {
+        return "سهام خریداری شد";
+    }
+
+    public String sellVote(Voter from, String nomineeName) {
+        return null;
+    }
+
+    public List<Nominee> getUserVotes(Voter from) {
+        return null;
     }
 }
