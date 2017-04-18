@@ -1,0 +1,53 @@
+allprojects {
+    repositories {
+        maven { url "http://nexus.devsamat.ir/content/repositories/central" }
+        maven { url "http://nexus.devsamat.ir/content/repositories/thirdparty" }
+    }
+
+    apply plugin: 'idea'
+
+    group = 'ir.samatco.iepg'
+    version = '1.0.0'
+
+    apply from: "$rootDir/gradle/ci.gradle"
+}
+
+ext {
+    javaProjects = [':iepg-core'].collect { project it }
+}
+
+subprojects {
+    if (project in javaProjects) {
+        apply plugin: 'java'
+        sourceCompatibility = 1.7
+        targetCompatibility = 1.7
+        [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+    }
+
+    apply plugin: 'maven-publish'
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                artifact distTar {
+                    classifier 'dist'
+                }
+            }
+        }
+        repositories {
+            maven() {
+                credentials {
+                    username project.nexus_user
+                    password project.nexus_pass
+                }
+                url "http://nexus.devsamat.ir/content/repositories/test/"
+            }
+        }
+    }
+}
+
+task stage {
+    dependsOn subprojects*.publish
+}
+
+
