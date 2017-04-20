@@ -13,6 +13,7 @@ public class Nominee {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
     String name;
+    @Transient
     Integer price;
     Long number;
     Boolean valid;
@@ -55,5 +56,9 @@ public class Nominee {
 
     public void setValid(Boolean valid) {
         this.valid = valid;
+    }
+
+    public Long getEffectiveNumber() {
+        return number + 100;
     }
 }

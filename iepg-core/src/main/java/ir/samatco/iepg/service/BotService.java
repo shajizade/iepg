@@ -2,6 +2,7 @@ package ir.samatco.iepg.service;
 
 import ir.samatco.iepg.api.*;
 import ir.samatco.iepg.entity.Nominee;
+import ir.samatco.iepg.entity.UserVote;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -67,6 +68,10 @@ public class BotService {
             List<Nominee> allNominees = fullService.getAllNominees();
             request.setText(fullService.nomineeListString(allNominees));
             request.setReply_markup(getBaseMenuKeyboard());
+        }else if (text.startsWith(ASSETS_COMMAND)) {
+            List<UserVote> userVotes = fullService.getUserNoneZeroVotes(message.getFrom());
+            request.setText(fullService.getUserVotesString(userVotes,message.getFrom().getId()));
+            request.setReply_markup(getBaseMenuKeyboard());
         }
         else if (text.startsWith(RULES_COMMAND)) {
             request.setText(GAME_RULES);
@@ -76,20 +81,26 @@ public class BotService {
             if (text.length()==BUY_COMMAND.length())
             {
                 List<Nominee> allNominees = fullService.getAllNominees();
+                request.setText("سهام مورد نظر برای خرید را انتخاب کنید");
                 request.setReply_markup(getBuyNomineeListKeyboard(allNominees));
             }else{
                 String nomineeName=text.substring(BUY_COMMAND.length()+VOTE_LABLE.length());
-                request.setText(fullService.buyVote(message.getFrom(),nomineeName));
+                request.setText(fullService.buyVote(message.getFrom().getId(),nomineeName));
                 request.setReply_markup(getBaseMenuKeyboard());
             }
         }else if (text.startsWith(SELL_COMMAND)) {
             if (text.length()==SELL_COMMAND.length())
             {
-                List<Nominee> allNominees = fullService.getUserVotes(message.getFrom());
-                request.setReply_markup(getBuyNomineeListKeyboard(allNominees));
+                List<UserVote> userVotes = fullService.getUserNoneZeroVotes(message.getFrom());
+                if (userVotes.isEmpty()){
+                    request.setText("شما سهامی برای فروش ندارید");
+                }else {
+                    request.setText("سهام مورد نظر برای فروش را انتخاب کنید");
+                }
+                request.setReply_markup(getSellNomineeListKeyboard(userVotes));
             }else{
                 String nomineeName=text.substring(SELL_COMMAND.length()+VOTE_LABLE.length());
-                request.setText(fullService.sellVote(message.getFrom(),nomineeName));
+                request.setText(fullService.sellVote(message.getFrom().getId(),nomineeName));
                 request.setReply_markup(getBaseMenuKeyboard());
             }
         }else if(text.startsWith(START_COMMAND)) {
@@ -112,21 +123,21 @@ public class BotService {
         }
     }
 
-    private ReplyKeyboard getBuyNomineeListKeyboard(List<Nominee> allNominees) {
-        ReplyKeyboard replyKeyboard= new ReplyKeyboard(allNominees.size()+1);
+    private ReplyKeyboard getSellNomineeListKeyboard(List<UserVote> userVotes) {
+        ReplyKeyboard replyKeyboard= new ReplyKeyboard(userVotes.size()+1);
         int index=0;
-        for (Nominee nominee : allNominees) {
-            replyKeyboard.getKeyboard().get(index).add(new Keyboard(BUY_COMMAND+ VOTE_LABLE +nominee.getName()));
+        for (UserVote userVote : userVotes) {
+            replyKeyboard.getKeyboard().get(index).add(new Keyboard(SELL_COMMAND+ VOTE_LABLE +userVote.getNominee().getName()));
             index++;
         }
         replyKeyboard.getKeyboard().get(index).add(new Keyboard(MAIN_MENU_COMMAND));
         return replyKeyboard;
     }
-    private ReplyKeyboard getSellNomineeListKeyboard(List<Nominee> allNominees) {
+    private ReplyKeyboard getBuyNomineeListKeyboard(List<Nominee> allNominees) {
         ReplyKeyboard replyKeyboard= new ReplyKeyboard(allNominees.size()+1);
         int index=0;
         for (Nominee nominee : allNominees) {
-            replyKeyboard.getKeyboard().get(index).add(new Keyboard(SELL_COMMAND+ VOTE_LABLE +nominee.getName()));
+            replyKeyboard.getKeyboard().get(index).add(new Keyboard(BUY_COMMAND+ VOTE_LABLE +nominee.getName()));
             index++;
         }
         replyKeyboard.getKeyboard().get(index).add(new Keyboard(MAIN_MENU_COMMAND));

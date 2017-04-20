@@ -13,4 +13,5 @@ import java.util.List;
  */
 public interface NomineeRepository extends PagingAndSortingRepository<Nominee, Integer>, JpaSpecificationExecutor<Nominee> {
     List<Nominee> findAll();
+    Nominee findByName(String name);
 }

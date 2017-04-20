@@ -14,8 +14,9 @@ public class UserVote {
     Long id;
     @JoinColumn(name = "voterId")
     Voter voter;
+    @JoinColumn(name = "nomineeId")
     Nominee nominee;
-    Integer sellOrBuy;
+    Integer number;
 
     public Long getId() {
         return id;
@@ -41,11 +42,11 @@ public class UserVote {
         this.nominee = nominee;
     }
 
-    public Integer getSellOrBuy() {
-        return sellOrBuy;
+    public Integer getNumber() {
+        return number;
     }
 
-    public void setSellOrBuy(Integer sellOrBuy) {
-        this.sellOrBuy = sellOrBuy;
+    public void setNumber(Integer number) {
+        this.number = number;
     }
 }
