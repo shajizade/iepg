@@ -14,9 +14,35 @@ public class Nominee {
     Integer id;
     String name;
     @Transient
-    Integer price;
+    Integer buyPrice;
+    @Transient
+    Integer sellPrice;
     Long number;
     Boolean valid;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Nominee)) return false;
+
+        Nominee nominee = (Nominee) o;
+
+        return id.equals(nominee.id);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
+
+    public Integer getSellPrice() {
+        return sellPrice;
+    }
+
+    public void setSellPrice(Integer sellPrice) {
+        this.sellPrice = sellPrice;
+    }
 
     public Integer getId() {
         return id;
@@ -34,12 +60,12 @@ public class Nominee {
         this.name = name;
     }
 
-    public Integer getPrice() {
-        return price;
+    public Integer getBuyPrice() {
+        return buyPrice;
     }
 
-    public void setPrice(Integer price) {
-        this.price = price;
+    public void setBuyPrice(Integer buyPrice) {
+        this.buyPrice = buyPrice;
     }
 
     public Long getNumber() {
