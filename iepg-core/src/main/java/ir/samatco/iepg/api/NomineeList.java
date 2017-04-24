@@ -46,11 +46,19 @@ public class NomineeList {
     public void reCalculate(){
         bottom=0D;
         for (Nominee nominee : nomineeList) {
-            bottom +=  nominee.getEffectiveNumber();
+            if (nominee.getValid())
+                bottom +=  nominee.getEffectiveNumber();
         }
         for (Nominee nominee : nomineeList) {
-            nominee.setBuyPrice(new Double((nominee.getEffectiveNumber()/bottom) *1000).intValue());
-            nominee.setSellPrice(new Double(((nominee.getEffectiveNumber()-1)/(bottom-1)) *1000).intValue());
+            if (nominee.getValid()) {
+                int buyPrice = new Double((nominee.getEffectiveNumber() / bottom) * 1000).intValue();
+                nominee.setBuyPrice((buyPrice > 0) ? buyPrice : 1);
+                int sellPrice = new Double(((nominee.getEffectiveNumber() - 1) / (bottom - 1)) * 1000).intValue();
+                nominee.setSellPrice((sellPrice > 0) ? sellPrice : 1);
+            }else{
+                nominee.setBuyPrice(0);
+                nominee.setSellPrice(0);
+            }
         }
 /*
         for (Nominee nominee : nominees) {

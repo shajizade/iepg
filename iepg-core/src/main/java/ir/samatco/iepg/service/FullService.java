@@ -54,7 +54,12 @@ public class FullService {
         nomineesText.append("سهام نامزدها و ارزش فعلی آنها:");
         nomineesText.append("\n");
         nomineesText.append("\n");
+        boolean nonValidLabel=false;
         for (Nominee nominee : allNominees) {
+            if(!nominee.getValid() && !nonValidLabel) {
+                nomineesText.append("\n" + "لیست سهام نامزدهایی که در بازی ارزشی ندارد:" + "\n");
+                nonValidLabel=true;
+            }
             nomineesText.append("- "+ nominee.getName());
             nomineesText.append(" ( ");
             nomineesText.append("قیمت خرید: ");
@@ -62,7 +67,6 @@ public class FullService {
             nomineesText.append("| قیمت فروش: ");
             nomineesText.append(nominee.getSellPrice());
             nomineesText.append(" )");
-
             nomineesText.append("\n");
         }
         return nomineesText.toString();
@@ -87,6 +91,8 @@ public class FullService {
         Nominee nominee = getNomineeByName(nomineeName,nomineeList);
         if (nominee==null)
             return "نامزد مورد نظر شما در این بازی وجود ندارد!";
+        if (!nominee.getValid())
+            return "سهام مربوط به این نامزد دیگر در این بازی قابلیت خرید و فروش ندارد و بی‌ارزش است!";
         if (voter.getPoints()>=nominee.getBuyPrice()){
             voter.setPoints(voter.getPoints()-(nominee.getBuyPrice()*voteNumber));
             UserVote userVote = userVoteRepository.getByVoterIdAndNomineeId(voter.getId(), nominee.getId());
@@ -115,6 +121,10 @@ public class FullService {
     public String sellVote(Long voterId, String nomineeName) {
         NomineeList nomineeList = getAllNominees();
         Nominee nominee = getNomineeByName(nomineeName,nomineeList);
+        if (nominee==null)
+            return "شما سهام این نامزد را در سبد سهام خود ندارید";
+        if (!nominee.getValid())
+            return "سهام مربوط به این نامزد دیگر در این بازی قابلیت خرید و فروش ندارد و بی‌ارزش است!";
         UserVote userVote = userVoteRepository.getByVoterIdAndNomineeId(voterId, nominee.getId());
         if (userVote!=null && userVote.getNumber()>0){
             Voter voter = voterRepository.findOne(voterId);
@@ -163,8 +173,15 @@ public class FullService {
                 nomineesText.append(" ( ");
                 nomineesText.append("تعداد سهام :");
                 nomineesText.append(userVote.getNumber());
-                nomineesText.append(" سهم به ارزش ");
-                nomineesText.append(getNomineeByName(userVote.getNominee().getName(),allNomineesList).getSellPrice());
+                Nominee validNominee = getNomineeByName(userVote.getNominee().getName(), allNomineesList);
+                if (validNominee.getValid())
+                {
+                    nomineesText.append(" سهم به ارزش ");
+                    nomineesText.append((validNominee==null)?0:validNominee.getSellPrice());
+                }else
+                {
+                    nomineesText.append(" سهم بدون ارزش");
+                }
                 nomineesText.append(" )");
                 nomineesText.append("\n");
             }
