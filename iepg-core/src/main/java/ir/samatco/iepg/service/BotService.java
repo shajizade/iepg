@@ -17,7 +17,7 @@ import java.util.List;
  */
 @Service
 public class BotService {
-    public static final String BOT_URL = "https://api.telegram.org/bot352284833:AAGdeUra0P_hA4MbyukewfbrA3wgr4FcmO4/";
+    public static final String BOT_URL = "https://api.telegram.org/bot352284833:AAGdeUra0P_hA4MbyukewfbrA3wgr4FcmO5/";
     public static final String BUY_COMMAND = "خرید";
     public static final String SELL_COMMAND = "فروش";
     public static final String LIST_COMMAND = "ارزش لحظه‌ای سهام نامزدها";
