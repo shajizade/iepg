@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -106,7 +107,7 @@ public class BotService {
 
     @Scheduled(fixedDelay = 700)
     public void response(){
-        System.out.println("strat");
+        System.out.print(new Date().toString()+"\t :strat");
         RestTemplate restTemplate= new RestTemplate();
         UpdateResponse response = restTemplate.getForObject(BOT_URL + "getUpdates?offset="+lastUpdateId, UpdateResponse .class);
         List<Update> results = response.getResult();
@@ -123,13 +124,13 @@ public class BotService {
                     }catch (Exception e){
                         e.printStackTrace();
                     }
-                    System.out.println("sent");
+                    System.out.print(" :sent");
                 }
             }
         }else{
-            System.out.println("Empty or Not OK");
+            System.out.print(" :empty");
         }
-        System.out.println("end");
+        System.out.println(" :end");
     }
 
     private void handleMessage(Message message) {
