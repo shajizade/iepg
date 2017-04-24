@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -87,7 +88,6 @@ public class FullService {
         if (nominee==null)
             return "نامزد مورد نظر شما در این بازی وجود ندارد!";
         if (voter.getPoints()>=nominee.getBuyPrice()){
-            NomineeHistory nomineeHistory= new NomineeHistory();
             voter.setPoints(voter.getPoints()-(nominee.getBuyPrice()*voteNumber));
             UserVote userVote = userVoteRepository.getByVoterIdAndNomineeId(voter.getId(), nominee.getId());
             if (userVote==null){
@@ -99,15 +99,9 @@ public class FullService {
                 userVote.setNumber(userVote.getNumber()+voteNumber);
             }
             nominee.setNumber(nominee.getNumber()+voteNumber);
-
-            nomineeList.reCalculate();
-            nomineeHistory.setNominee(nominee);
-            nomineeHistory.setPrice(nominee.getBuyPrice());
-            nomineeHistory.setReportTime(new Date());
             userVoteRepository.save(userVote);
             voterRepository.save(voter);
             nomineeRepository.save(nominee);
-            nomineeHistoryRepository.save(nomineeHistory);
             StringBuilder sb = new StringBuilder("سهام خریداری شد");
             sb.append("\n");
             sb.append("موجودی شما: ");
@@ -129,18 +123,9 @@ public class FullService {
             voter.setPoints(voter.getPoints()+nominee.getSellPrice());
             nominee.setNumber(nominee.getNumber()-1);
 
-            nomineeList.reCalculate();
-
-            NomineeHistory nomineeHistory= new NomineeHistory();
-            nomineeHistory.setNominee(nominee);
-            nomineeHistory.setPrice(nominee.getBuyPrice());
-            nomineeHistory.setReportTime(new Date());
-
             userVoteRepository.save(userVote);
             voterRepository.save(voter);
             nomineeRepository.save(nominee);
-            nomineeHistoryRepository.save(nomineeHistory);
-
             userVoteRepository.save(userVote);
             voterRepository.save(voter);
             nomineeRepository.save(nominee);
@@ -193,4 +178,17 @@ public class FullService {
         return nomineesText.toString();
     }
 
+    public void saveReport() {
+        NomineeList allNominees = getAllNominees();
+        List<NomineeHistory> historyList= new ArrayList<>();
+        for (Nominee nominee : allNominees.getNomineeList()) {
+            NomineeHistory nomineeHistory= new NomineeHistory();
+            nomineeHistory.setNominee(nominee);
+            nomineeHistory.setPrice(nominee.getBuyPrice());
+            nomineeHistory.setReportTime(new Date());
+            historyList.add(nomineeHistory);
+        }
+        Iterable<NomineeHistory> save = nomineeHistoryRepository.save(historyList);
+        System.out.printf("");
+    }
 }

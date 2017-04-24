@@ -16,7 +16,7 @@ public class NomineeHistory {
     @JoinColumn(name = "nomineeId")
     Nominee nominee;
     Integer price;
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     Date reportTime;
 
     public Long getId() {
